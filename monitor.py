@@ -1,7 +1,6 @@
 """
-Claude Docs Monitor v2 (방법C 풀세팅)
-- 공식 문서 크롤링 → 변경 감지 → 노션 DB 저장 → 노션 지식베이스 업데이트
-- → knowledge-base.md 자동 생성 → Gmail 알림
+Claude Docs Monitor
+- 공식 문서 크롤링 → 변경 감지 → 노션 저장 → 이메일 알림
 """
 
 import os
@@ -19,6 +18,7 @@ from difflib import unified_diff
 # 설정
 # ============================================================
 
+# 모니터링 대상 URL 목록
 MONITOR_URLS = [
     {
         "name": "Claude Code Overview",
@@ -75,7 +75,6 @@ MONITOR_URLS = [
 # 환경변수에서 설정 로드
 NOTION_API_KEY = os.environ.get("NOTION_API_KEY", "")
 NOTION_DATABASE_ID = os.environ.get("NOTION_DATABASE_ID", "")
-NOTION_KB_PAGE_ID = os.environ.get("NOTION_KB_PAGE_ID", "")  # 지식베이스 페이지 ID
 GMAIL_ADDRESS = os.environ.get("GMAIL_ADDRESS", "")
 GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD", "")
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY_FOR_SUMMARY", "")
@@ -90,7 +89,7 @@ DATA_DIR.mkdir(exist_ok=True)
 def fetch_page(url: str) -> str:
     """웹 페이지 텍스트 내용 가져오기"""
     headers = {
-        "User-Agent": "ClaudeDocsMonitor/2.0 (docs change detection)"
+        "User-Agent": "ClaudeDocsMonitor/1.0 (docs change detection)"
     }
     try:
         resp = requests.get(url, headers=headers, timeout=30)
@@ -161,6 +160,7 @@ def detect_changes() -> list:
         prev_hash = previous.get(name, "")
 
         if prev_hash and current_hash != prev_hash:
+            # 변경 감지됨
             old_content = load_page_content(name)
             diff_text = generate_diff(old_content, content, name)
 
@@ -193,7 +193,7 @@ def generate_diff(old: str, new: str, name: str) -> str:
     new_lines = new.splitlines(keepends=True)
 
     diff = unified_diff(old_lines, new_lines, fromfile=f"{name} (이전)", tofile=f"{name} (현재)", lineterm="")
-    diff_text = "".join(list(diff)[:200])
+    diff_text = "".join(list(diff)[:200])  # 최대 200줄
 
     return diff_text if diff_text else "(미세한 변경)"
 
@@ -204,6 +204,7 @@ def generate_diff(old: str, new: str, name: str) -> str:
 def summarize_changes(changes: list) -> str:
     """Claude API로 변경사항 요약"""
     if not ANTHROPIC_API_KEY:
+        # API 키 없으면 간단 요약
         summary_parts = []
         for c in changes:
             summary_parts.append(f"📌 [{c['category']}] {c['name']}\n   URL: {c['url']}\n   시간: {c['timestamp']}")
@@ -249,7 +250,7 @@ def summarize_changes(changes: list) -> str:
         return "\n".join([f"- [{c['category']}] {c['name']}" for c in changes])
 
 # ============================================================
-# 노션 DB 저장
+# 노션 저장
 # ============================================================
 
 def save_to_notion(changes: list, summary: str):
@@ -268,6 +269,7 @@ def save_to_notion(changes: list, summary: str):
     changed_docs = ", ".join([c["name"] for c in changes])
     categories = list(set([c["category"] for c in changes]))
 
+    # 노션 페이지 생성
     payload = {
         "parent": {"database_id": NOTION_DATABASE_ID},
         "properties": {
@@ -337,146 +339,30 @@ def save_to_notion(changes: list, summary: str):
         )
         if resp.status_code == 200:
             page_url = resp.json().get("url", "")
-            print(f"✅ 노션 DB 저장 완료: {page_url}")
+            print(f"✅ 노션 저장 완료: {page_url}")
         else:
-            print(f"⚠️  노션 DB 저장 실패: {resp.status_code} {resp.text[:300]}")
+            print(f"⚠️  노션 저장 실패: {resp.status_code} {resp.text[:300]}")
     except Exception as e:
-        print(f"⚠️  노션 DB 저장 오류: {e}")
+        print(f"⚠️  노션 저장 오류: {e}")
 
 # ============================================================
-# [NEW] 노션 지식베이스 페이지 업데이트
-# ============================================================
-
-def update_notion_knowledge_base(changes: list, summary: str):
-    """노션 지식베이스 페이지에 변경 내용 추가"""
-    if not NOTION_API_KEY or not NOTION_KB_PAGE_ID:
-        print("⚠️  노션 지식베이스 페이지 ID 없음 - 건너뜀")
-        return
-
-    headers = {
-        "Authorization": f"Bearer {NOTION_API_KEY}",
-        "Content-Type": "application/json",
-        "Notion-Version": "2022-06-28",
-    }
-
-    now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    changed_names = ", ".join([c["name"] for c in changes])
-
-    # 지식베이스 페이지에 블록 추가 (append)
-    blocks = [
-        {
-            "object": "block",
-            "type": "divider",
-            "divider": {}
-        },
-        {
-            "object": "block",
-            "type": "heading_3",
-            "heading_3": {
-                "rich_text": [{"text": {"content": f"🔄 업데이트 ({now})"}}],
-                "color": "blue_background"
-            }
-        },
-        {
-            "object": "block",
-            "type": "paragraph",
-            "paragraph": {
-                "rich_text": [
-                    {"text": {"content": f"변경 문서: ", "annotations": {"bold": True}}},
-                    {"text": {"content": changed_names[:1500]}}
-                ]
-            }
-        },
-        {
-            "object": "block",
-            "type": "paragraph",
-            "paragraph": {
-                "rich_text": [{"text": {"content": summary[:2000]}}]
-            }
-        },
-    ]
-
-    # 변경된 문서 링크 추가
-    for c in changes:
-        blocks.append({
-            "object": "block",
-            "type": "bookmark",
-            "bookmark": {"url": c["url"]}
-        })
-
-    try:
-        resp = requests.patch(
-            f"https://api.notion.com/v1/blocks/{NOTION_KB_PAGE_ID}/children",
-            headers=headers,
-            json={"children": blocks},
-            timeout=30,
-        )
-        if resp.status_code == 200:
-            print(f"✅ 노션 지식베이스 업데이트 완료")
-        else:
-            print(f"⚠️  노션 지식베이스 업데이트 실패: {resp.status_code} {resp.text[:300]}")
-    except Exception as e:
-        print(f"⚠️  노션 지식베이스 업데이트 오류: {e}")
-
-# ============================================================
-# [NEW] knowledge-base.md 자동 생성
-# ============================================================
-
-def generate_knowledge_base_md(changes: list, summary: str):
-    """변경 내용을 반영한 knowledge-base.md 생성"""
-    kb_path = DATA_DIR / "knowledge-base.md"
-    changelog_path = DATA_DIR / "changelog.md"
-
-    now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-
-    # 기존 changelog 로드 (있으면)
-    existing_changelog = ""
-    if changelog_path.exists():
-        existing_changelog = changelog_path.read_text()
-
-    # 새 변경 로그 추가
-    new_entry = f"\n---\n\n### 🔄 {now}\n\n"
-    for c in changes:
-        new_entry += f"- **[{c['category']}]** {c['name']} ([링크]({c['url']}))\n"
-    new_entry += f"\n**요약:** {summary[:1000]}\n"
-
-    updated_changelog = new_entry + existing_changelog
-    changelog_path.write_text(updated_changelog)
-
-    # knowledge-base.md 전체 재생성
-    # 기존 베이스 파일 읽기
-    base_kb_path = Path(__file__).parent.parent / "knowledge-base-template.md"
-    if base_kb_path.exists():
-        base_content = base_kb_path.read_text()
-    else:
-        base_content = "# 🧠 Claude Code 종합 지식베이스 (NEXUS)\n\n> 템플릿 파일이 없습니다. knowledge-base-template.md를 추가해주세요.\n"
-
-    # 베이스 + 변경 로그 결합
-    full_content = base_content + f"\n\n---\n\n## 📋 변경 이력 (자동 업데이트)\n\n> 마지막 업데이트: {now}\n" + updated_changelog
-
-    kb_path.write_text(full_content)
-    print(f"✅ knowledge-base.md 생성 완료: {kb_path}")
-    print(f"✅ changelog.md 업데이트 완료: {changelog_path}")
-
-# ============================================================
-# 이메일 알림 (업그레이드: 다운로드 링크 포함)
+# 이메일 알림
 # ============================================================
 
 def send_email_alert(changes: list, summary: str):
-    """Gmail로 변경 알림 발송 (GitHub 다운로드 링크 포함)"""
+    """Gmail로 변경 알림 발송"""
     if not GMAIL_ADDRESS or not GMAIL_APP_PASSWORD:
         print("⚠️  Gmail 설정 없음 - 건너뜀")
         return
 
     now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    github_kb_url = "https://github.com/sky8kim/claude-docs-monitor/blob/main/data/knowledge-base.md"
-    github_raw_url = "https://raw.githubusercontent.com/sky8kim/claude-docs-monitor/main/data/knowledge-base.md"
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = f"🔔 Claude 문서 변경 감지 ({len(changes)}건) - {now}"
     msg["From"] = GMAIL_ADDRESS
     msg["To"] = GMAIL_ADDRESS
 
+    # HTML 이메일 본문
     changes_html = ""
     for c in changes:
         changes_html += f"""
@@ -508,21 +394,8 @@ def send_email_alert(changes: list, summary: str):
 {summary}
             </div>
             
-            <h2 style="color:#f0883e;margin-top:20px;">📥 지식베이스 업데이트</h2>
-            <div style="background:#1a1a2e;padding:16px;border-radius:8px;">
-                <p>최신 knowledge-base.md가 자동 생성되었습니다.</p>
-                <p>
-                    <a href="{github_kb_url}" style="color:#4fc3f7;font-size:16px;">📄 GitHub에서 보기</a>
-                    &nbsp;|&nbsp;
-                    <a href="{github_raw_url}" style="color:#4fc3f7;font-size:16px;">⬇️ 다운로드</a>
-                </p>
-                <p style="color:#8b949e;font-size:12px;">
-                    claude.ai 프로젝트 Knowledge에 이 파일을 교체하면 KAI가 최신 내용을 참조합니다.
-                </p>
-            </div>
-            
             <p style="color:#8b949e;margin-top:20px;font-size:12px;">
-                NEXUS Docs Monitor v2 | Powered by KAI
+                NEXUS Docs Monitor | Powered by KAI
             </p>
         </div>
     </body>
@@ -545,7 +418,7 @@ def send_email_alert(changes: list, summary: str):
 
 def main():
     print("=" * 60)
-    print("🚀 NEXUS Claude Docs Monitor v2 실행")
+    print("🚀 NEXUS Claude Docs Monitor 실행")
     print(f"⏰ {datetime.datetime.now(datetime.timezone.utc).isoformat()}")
     print("=" * 60)
 
@@ -563,23 +436,15 @@ def main():
     summary = summarize_changes(changes)
     print(summary)
 
-    # 3. 노션 DB 저장
-    print("\n📓 노션 DB 저장 중...")
+    # 3. 노션 저장
+    print("\n📓 노션 저장 중...")
     save_to_notion(changes, summary)
 
-    # 4. [NEW] 노션 지식베이스 페이지 업데이트
-    print("\n🧠 노션 지식베이스 업데이트 중...")
-    update_notion_knowledge_base(changes, summary)
-
-    # 5. [NEW] knowledge-base.md 자동 생성
-    print("\n📄 knowledge-base.md 생성 중...")
-    generate_knowledge_base_md(changes, summary)
-
-    # 6. 이메일 알림
+    # 4. 이메일 알림
     print("\n📧 이메일 발송 중...")
     send_email_alert(changes, summary)
 
-    # 7. 변경 로그 파일 저장
+    # 5. 변경 로그 파일 저장
     log_file = DATA_DIR / "changes_log.json"
     existing_log = json.loads(log_file.read_text()) if log_file.exists() else []
     existing_log.extend(changes)
