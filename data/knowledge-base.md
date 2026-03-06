@@ -304,7 +304,29 @@ claude remote-control
 
 ## 📋 변경 이력 (자동 업데이트)
 
-> 마지막 업데이트: 2026-03-06 10:53 UTC
+> 마지막 업데이트: 2026-03-06 10:55 UTC
+
+---
+
+### 🔄 2026-03-06 10:55 UTC
+
+- **[Claude Code]** Claude Code CLI Reference ([링크](https://docs.anthropic.com/en/docs/claude-code/cli-reference))
+- **[Claude Code]** Claude Code MCP ([링크](https://docs.anthropic.com/en/docs/claude-code/mcp))
+- **[Claude Code]** Claude Code Settings ([링크](https://docs.anthropic.com/en/docs/claude-code/settings))
+- **[API]** Claude API Changelog ([링크](https://docs.anthropic.com/en/docs/about-claude/models))
+- **[API]** Claude API Tool Use ([링크](https://docs.anthropic.com/en/docs/build-with-claude/tool-use/overview))
+- **[API]** Claude API MCP Connector ([링크](https://docs.anthropic.com/en/docs/build-with-claude/mcp-connector))
+- **[News]** Anthropic News ([링크](https://www.anthropic.com/news))
+- **[Release]** Claude Code GitHub Releases ([링크](https://github.com/anthropics/claude-code/releases))
+
+**요약:** - [Claude Code] Claude Code CLI Reference
+- [Claude Code] Claude Code MCP
+- [Claude Code] Claude Code Settings
+- [API] Claude API Changelog
+- [API] Claude API Tool Use
+- [API] Claude API MCP Connector
+- [News] Anthropic News
+- [Release] Claude Code GitHub Releases
 
 ---
 
