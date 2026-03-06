@@ -1,12 +1,12 @@
 {
   "Claude Code Overview": "97778652c2fe6ce48d6a6d324cd590ac6361f3eacf16fdb9bab7dee6cb1e82ea",
   "Claude Code Quickstart": "f3db83e98dd2f8105053932654105eb865aac8514cc57c11571fd38549d4fa44",
-  "Claude Code CLI Reference": "6a0e7067bcf2901b4610c0f3d1b63daff5631ca7fc85c34f929f1565427ae8c1",
-  "Claude Code MCP": "9bade320e0478479cf2605837f162f5cd072e519fda43a66bc8fae420bf7ab4d",
-  "Claude Code Settings": "0dd5c0157987bf5471fe53727208e83b4ef4a9b6c9135c69357dd8b65b7732bf",
-  "Claude API Changelog": "5a809f1ecbf6ca53052e1834f082d9ff5270252837250bbf4e3539e916c91e47",
-  "Claude API Tool Use": "2e39e8249a0f9592e482870764c4b96027d5a43cec44a1f090f489c271835341",
-  "Claude API MCP Connector": "f7df74495a743a98fbf576fb780ca5d2527160aa5e6584a5c4f6a91500f6221a",
-  "Anthropic News": "229c4c01e8a23485aa30a7a7036208b96f1d6442e172000f82ad345d7bd348d9",
-  "Claude Code GitHub Releases": "de808bf23f84a54e45269e960108b1ef9c837c4136b4996c2d697a55e03e5417"
+  "Claude Code CLI Reference": "b68297dae79c71918077bde4b8e39be1717b33c51d205ff9b8214ac43fd7c804",
+  "Claude Code MCP": "1873031592f16b64009b1cd252b0013352790caa78e9b47d9a7efaab70063323",
+  "Claude Code Settings": "b22a23784a43c9444d44615d74887eca0718bfcd20376a2424b4a03f14d8319b",
+  "Claude API Changelog": "22649b962e9a10548e281a2fd8d97f3a9ceffec0f020da8e5f080ba5987a5d49",
+  "Claude API Tool Use": "858837a84d129a003b9a9f7f3de36d47fb3dae8691fee7eba252734a95512e98",
+  "Claude API MCP Connector": "dddbbf5d05ad6b6ec85bccad7b30bedd3ab3d32635f281d005ca4ea742408724",
+  "Anthropic News": "75f9a29dc76cac2229dc77f816910b1cc1e0b71fe65c249a934eb0408a14af7a",
+  "Claude Code GitHub Releases": "6e68c6aa8e6e1654d6432c4e821e335165d52819dc97e9932ccce48774243e4e"
 }
