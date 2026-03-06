@@ -228,7 +228,7 @@ def summarize_changes(changes: list) -> str:
                 "messages": [
                     {
                         "role": "user",
-                        "content": f"""다음은 Claude 공식 문서의 변경사항입니다. 
+                        "content": f"""다음은 Claude 공식 문서의 변경사항입니다.
 한국어로 핵심 변경 내용을 간결하게 요약해주세요.
 각 변경사항마다:
 1. 무엇이 바뀌었는지
@@ -242,6 +242,9 @@ def summarize_changes(changes: list) -> str:
             },
             timeout=60,
         )
+        if resp.status_code != 200:
+            print(f"⚠️  Claude API 오류 ({resp.status_code}): {resp.text[:200]}")
+            return "\n".join([f"- [{c['category']}] {c['name']}" for c in changes])
         data = resp.json()
         return data["content"][0]["text"]
     except Exception as e:
@@ -278,11 +281,6 @@ def save_to_notion(changes: list, summary: str):
             },
             "카테고리": {
                 "multi_select": [{"name": cat} for cat in categories]
-            },
-            "변경 문서": {
-                "rich_text": [
-                    {"text": {"content": changed_docs[:2000]}}
-                ]
             },
             "감지 일시": {
                 "date": {"start": datetime.datetime.now(datetime.timezone.utc).isoformat()}
@@ -382,8 +380,7 @@ def update_notion_knowledge_base(changes: list, summary: str):
             "type": "paragraph",
             "paragraph": {
                 "rich_text": [
-                    {"text": {"content": f"변경 문서: ", "annotations": {"bold": True}}},
-                    {"text": {"content": changed_names[:1500]}}
+                    {"text": {"content": f"변경 문서: {changed_names[:1500]}"}}
                 ]
             }
         },
@@ -529,7 +526,7 @@ def send_email_alert(changes: list, summary: str):
     </html>
     """
 
-    msg.attach(MIMEText(html, "html"))
+    msg.attach(MIMEText(html, "html", "utf-8"))
 
     try:
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
@@ -579,10 +576,11 @@ def main():
     print("\n📧 이메일 발송 중...")
     send_email_alert(changes, summary)
 
-    # 7. 변경 로그 파일 저장
+    # 7. 변경 로그 파일 저장 (최근 200건만 유지)
     log_file = DATA_DIR / "changes_log.json"
     existing_log = json.loads(log_file.read_text()) if log_file.exists() else []
     existing_log.extend(changes)
+    existing_log = existing_log[-200:]
     log_file.write_text(json.dumps(existing_log, indent=2, ensure_ascii=False))
 
     print("\n✅ 모든 작업 완료!")
