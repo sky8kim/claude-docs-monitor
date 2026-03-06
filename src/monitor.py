@@ -460,11 +460,22 @@ def generate_knowledge_base_md(changes: list, summary: str):
 # 이메일 알림 (업그레이드: 다운로드 링크 포함)
 # ============================================================
 
+def _clean_text(text: str) -> str:
+    """이메일 호환을 위해 non-ASCII 공백 문자 정리"""
+    return text.replace("\xa0", " ").replace("\u200b", "")
+
+
 def send_email_alert(changes: list, summary: str):
     """Gmail로 변경 알림 발송 (GitHub 다운로드 링크 포함)"""
     if not GMAIL_ADDRESS or not GMAIL_APP_PASSWORD:
         print("⚠️  Gmail 설정 없음 - 건너뜀")
         return
+
+    summary = _clean_text(summary)
+    changes = [
+        {k: _clean_text(v) if isinstance(v, str) else v for k, v in c.items()}
+        for c in changes
+    ]
 
     now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     github_kb_url = "https://github.com/sky8kim/claude-docs-monitor/blob/main/data/knowledge-base.md"
