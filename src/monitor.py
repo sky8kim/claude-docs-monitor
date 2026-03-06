@@ -80,6 +80,7 @@ GMAIL_ADDRESS = os.environ.get("GMAIL_ADDRESS", "")
 GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD", "")
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY_FOR_SUMMARY", "")
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+NEXUS_API_URL = os.environ.get("NEXUS_API_URL", "")
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 DATA_DIR.mkdir(exist_ok=True)
@@ -600,6 +601,41 @@ def send_email_alert(changes: list, summary: str):
         traceback.print_exc()
 
 # ============================================================
+# NEXUS 지식엔진 연동
+# ============================================================
+
+def send_to_nexus(changes: list, summary: str):
+    """NEXUS Knowledge Engine에 변경사항 전송"""
+    if not NEXUS_API_URL:
+        print("⚠️  NEXUS_API_URL 설정 없음 - 건너뜀")
+        return
+
+    now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M")
+    changed_docs = ", ".join([c["name"] for c in changes])
+    content = f"[{len(changes)}건 변경] {changed_docs}\n\n{summary}"
+
+    try:
+        resp = requests.post(
+            f"{NEXUS_API_URL.rstrip('/')}/api/knowledge/collect",
+            headers={"Content-Type": "application/json"},
+            json={
+                "title": f"Claude 공식문서 변경 감지 - {now}",
+                "content": content[:5000],
+                "source_url": "https://github.com/sky8kim/claude-docs-monitor",
+                "source_type": "auto",
+                "priority": 3,
+            },
+            timeout=15,
+        )
+        if resp.status_code == 200:
+            print(f"✅ NEXUS 지식엔진 전송 완료")
+        else:
+            print(f"⚠️  NEXUS 지식엔진 전송 실패: {resp.status_code} {resp.text[:200]}")
+    except Exception as e:
+        print(f"⚠️  NEXUS 지식엔진 전송 오류 (무시): {e}")
+
+
+# ============================================================
 # 메인 실행
 # ============================================================
 
@@ -627,19 +663,23 @@ def main():
     print("\n📓 노션 DB 저장 중...")
     save_to_notion(changes, summary)
 
-    # 4. [NEW] 노션 지식베이스 페이지 업데이트
+    # 4. NEXUS 지식엔진 연동
+    print("\n🔗 NEXUS 지식엔진 전송 중...")
+    send_to_nexus(changes, summary)
+
+    # 5. 노션 지식베이스 페이지 업데이트
     print("\n🧠 노션 지식베이스 업데이트 중...")
     update_notion_knowledge_base(changes, summary)
 
-    # 5. [NEW] knowledge-base.md 자동 생성
+    # 6. knowledge-base.md 자동 생성
     print("\n📄 knowledge-base.md 생성 중...")
     generate_knowledge_base_md(changes, summary)
 
-    # 6. 이메일 알림
+    # 7. 이메일 알림
     print("\n📧 이메일 발송 중...")
     send_email_alert(changes, summary)
 
-    # 7. 변경 로그 파일 저장 (최근 200건만 유지)
+    # 8. 변경 로그 파일 저장 (최근 200건만 유지)
     log_file = DATA_DIR / "changes_log.json"
     existing_log = json.loads(log_file.read_text()) if log_file.exists() else []
     existing_log.extend(changes)

@@ -34,6 +34,7 @@ jobs:
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           ANTHROPIC_API_KEY_FOR_SUMMARY: ${{ secrets.ANTHROPIC_API_KEY_FOR_SUMMARY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          NEXUS_API_URL: ${{ secrets.NEXUS_API_URL }}
         run: python src/monitor.py
 
       - name: 💾 변경 데이터 커밋
