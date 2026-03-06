@@ -12,6 +12,7 @@ import smtplib
 import requests
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.header import Header
 from pathlib import Path
 from difflib import unified_diff
 
@@ -470,7 +471,7 @@ def send_email_alert(changes: list, summary: str):
     github_raw_url = "https://raw.githubusercontent.com/sky8kim/claude-docs-monitor/main/data/knowledge-base.md"
 
     msg = MIMEMultipart("alternative")
-    msg["Subject"] = f"🔔 Claude 문서 변경 감지 ({len(changes)}건) - {now}"
+    msg["Subject"] = Header(f"Claude 문서 변경 감지 ({len(changes)}건) - {now}", "utf-8")
     msg["From"] = GMAIL_ADDRESS
     msg["To"] = GMAIL_ADDRESS
 
@@ -526,12 +527,13 @@ def send_email_alert(changes: list, summary: str):
     </html>
     """
 
+    html = html.replace("\xa0", " ")
     msg.attach(MIMEText(html, "html", "utf-8"))
 
     try:
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
             server.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)
-            server.sendmail(GMAIL_ADDRESS, GMAIL_ADDRESS, msg.as_string())
+            server.sendmail(GMAIL_ADDRESS, GMAIL_ADDRESS, msg.as_bytes())
         print(f"✅ 이메일 발송 완료: {GMAIL_ADDRESS}")
     except Exception as e:
         print(f"⚠️  이메일 발송 실패: {e}")
