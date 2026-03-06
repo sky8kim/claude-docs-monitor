@@ -40,9 +40,9 @@ jobs:
         run: |
           git config user.name "NEXUS Docs Monitor"
           git config user.email "nexus-bot@users.noreply.github.com"
-          # changes_log.json (103MB+) 트래킹 제거 — GitHub 100MB 제한 초과 방지
+          # changes_log.json (103MB+) 트래킹 제거 — .gitignore에 포함됨
           git rm --cached data/changes_log.json 2>/dev/null || true
-          git add data/ ':!data/changes_log.json'
+          git add data/
           git diff --staged --quiet || git commit -m "📊 docs monitor: $(date -u '+%Y-%m-%d %H:%M UTC')"
           git pull --rebase origin main
           git push
