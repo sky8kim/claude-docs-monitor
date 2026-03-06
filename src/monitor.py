@@ -472,6 +472,15 @@ def send_email_alert(changes: list, summary: str):
         print("⚠️  Gmail 설정 없음 - 건너뜀")
         return
 
+    # SMTP는 ASCII만 허용 — 환경변수에서 non-ASCII 문자 제거
+    gmail_addr = re.sub(r'[^\x20-\x7e]', '', GMAIL_ADDRESS).strip()
+    gmail_pass = re.sub(r'[^\x20-\x7e]', '', GMAIL_APP_PASSWORD).strip()
+
+    if gmail_addr != GMAIL_ADDRESS:
+        print(f"⚠️  GMAIL_ADDRESS에 non-ASCII 문자 발견 — 정리됨 (원본 길이: {len(GMAIL_ADDRESS)}, 정리 후: {len(gmail_addr)})")
+    if gmail_pass != GMAIL_APP_PASSWORD:
+        print(f"⚠️  GMAIL_APP_PASSWORD에 non-ASCII 문자 발견 — 정리됨")
+
     summary = _clean_text(summary)
     changes = [
         {k: _clean_text(v) if isinstance(v, str) else v for k, v in c.items()}
@@ -539,8 +548,8 @@ def send_email_alert(changes: list, summary: str):
         'MIME-Version: 1.0',
         'Content-Type: text/html; charset=utf-8',
         'Content-Transfer-Encoding: base64',
-        f'From: {GMAIL_ADDRESS}',
-        f'To: {GMAIL_ADDRESS}',
+        f'From: {gmail_addr}',
+        f'To: {gmail_addr}',
         f'Subject: {subject_encoded}',
         '',
         html_b64_wrapped,
@@ -549,11 +558,13 @@ def send_email_alert(changes: list, summary: str):
 
     try:
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)
-            server.sendmail(GMAIL_ADDRESS, GMAIL_ADDRESS, raw_email.encode('ascii'))
-        print(f"✅ 이메일 발송 완료: {GMAIL_ADDRESS}")
+            server.login(gmail_addr, gmail_pass)
+            server.sendmail(gmail_addr, gmail_addr, raw_email.encode('ascii'))
+        print(f"✅ 이메일 발송 완료: {gmail_addr}")
     except Exception as e:
+        import traceback
         print(f"⚠️  이메일 발송 실패: {e}")
+        traceback.print_exc()
 
 # ============================================================
 # 메인 실행
