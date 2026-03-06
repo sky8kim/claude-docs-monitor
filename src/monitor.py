@@ -9,10 +9,9 @@ import json
 import hashlib
 import datetime
 import re
+import base64
 import smtplib
 import requests
-from email.mime.text import MIMEText
-from email.header import Header
 from pathlib import Path
 from difflib import unified_diff
 
@@ -527,15 +526,31 @@ def send_email_alert(changes: list, summary: str):
     # 최종 안전장치: HTML 내 모든 non-ASCII 공백 제거
     html = _clean_text(html)
 
-    msg = MIMEText(html, "html", "utf-8")
-    msg["Subject"] = Header(f"Claude 문서 변경 감지 ({len(changes)}건) - {now}", "utf-8")
-    msg["From"] = GMAIL_ADDRESS
-    msg["To"] = GMAIL_ADDRESS
+    # Python email 라이브러리 우회: 수동 MIME 구성 (ASCII-safe)
+    subject_text = f"Claude 문서 변경 감지 ({len(changes)}건) - {now}"
+    subject_b64 = base64.b64encode(subject_text.encode('utf-8')).decode('ascii')
+    # RFC 2047: 긴 encoded-word는 76자 단위로 분할
+    subject_encoded = f"=?utf-8?b?{subject_b64}?="
+
+    html_b64 = base64.b64encode(html.encode('utf-8')).decode('ascii')
+    html_b64_wrapped = '\r\n'.join(html_b64[i:i+76] for i in range(0, len(html_b64), 76))
+
+    raw_email = '\r\n'.join([
+        'MIME-Version: 1.0',
+        'Content-Type: text/html; charset=utf-8',
+        'Content-Transfer-Encoding: base64',
+        f'From: {GMAIL_ADDRESS}',
+        f'To: {GMAIL_ADDRESS}',
+        f'Subject: {subject_encoded}',
+        '',
+        html_b64_wrapped,
+        '',
+    ])
 
     try:
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
             server.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)
-            server.sendmail(GMAIL_ADDRESS, GMAIL_ADDRESS, msg.as_bytes())
+            server.sendmail(GMAIL_ADDRESS, GMAIL_ADDRESS, raw_email.encode('ascii'))
         print(f"✅ 이메일 발송 완료: {GMAIL_ADDRESS}")
     except Exception as e:
         print(f"⚠️  이메일 발송 실패: {e}")
