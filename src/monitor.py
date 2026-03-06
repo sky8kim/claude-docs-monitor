@@ -8,10 +8,10 @@ import os
 import json
 import hashlib
 import datetime
+import re
 import smtplib
 import requests
 from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 from email.header import Header
 from pathlib import Path
 from difflib import unified_diff
@@ -461,8 +461,10 @@ def generate_knowledge_base_md(changes: list, summary: str):
 # ============================================================
 
 def _clean_text(text: str) -> str:
-    """이메일 호환을 위해 non-ASCII 공백 문자 정리"""
-    return text.replace("\xa0", " ").replace("\u200b", "")
+    """이메일 호환을 위해 non-ASCII 공백/제어 문자 정리"""
+    # \xa0(NBSP), \u200b(ZWSP), 기타 유니코드 공백을 일반 공백으로 변환
+    text = re.sub(r'[\xa0\u00a0\u2000-\u200b\u202f\u205f\u3000\ufeff]', ' ', text)
+    return text
 
 
 def send_email_alert(changes: list, summary: str):
@@ -481,11 +483,6 @@ def send_email_alert(changes: list, summary: str):
     github_kb_url = "https://github.com/sky8kim/claude-docs-monitor/blob/main/data/knowledge-base.md"
     github_raw_url = "https://raw.githubusercontent.com/sky8kim/claude-docs-monitor/main/data/knowledge-base.md"
 
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = Header(f"Claude 문서 변경 감지 ({len(changes)}건) - {now}", "utf-8")
-    msg["From"] = GMAIL_ADDRESS
-    msg["To"] = GMAIL_ADDRESS
-
     changes_html = ""
     for c in changes:
         changes_html += f"""
@@ -496,50 +493,44 @@ def send_email_alert(changes: list, summary: str):
             </td>
         </tr>"""
 
-    html = f"""
-    <html>
-    <body style="background:#0d1117;color:#e0e0e0;font-family:sans-serif;padding:20px;">
-        <div style="max-width:600px;margin:0 auto;background:#161b22;border-radius:12px;padding:24px;">
-            <h1 style="color:#58a6ff;">🔔 Claude 문서 변경 감지</h1>
-            <p style="color:#8b949e;">{now} | {len(changes)}건 변경</p>
-            
-            <h2 style="color:#f0883e;">📋 변경된 문서</h2>
-            <table style="width:100%;border-collapse:collapse;">
-                <tr>
-                    <th style="padding:8px;border:1px solid #333;background:#21262d;color:#f0883e;">카테고리</th>
-                    <th style="padding:8px;border:1px solid #333;background:#21262d;color:#f0883e;">문서</th>
-                </tr>
-                {changes_html}
-            </table>
-            
-            <h2 style="color:#f0883e;margin-top:20px;">📝 변경 요약</h2>
-            <div style="background:#1a1a2e;padding:16px;border-radius:8px;white-space:pre-wrap;line-height:1.6;">
-{summary}
-            </div>
-            
-            <h2 style="color:#f0883e;margin-top:20px;">📥 지식베이스 업데이트</h2>
-            <div style="background:#1a1a2e;padding:16px;border-radius:8px;">
-                <p>최신 knowledge-base.md가 자동 생성되었습니다.</p>
-                <p>
-                    <a href="{github_kb_url}" style="color:#4fc3f7;font-size:16px;">📄 GitHub에서 보기</a>
-                    &nbsp;|&nbsp;
-                    <a href="{github_raw_url}" style="color:#4fc3f7;font-size:16px;">⬇️ 다운로드</a>
-                </p>
-                <p style="color:#8b949e;font-size:12px;">
-                    claude.ai 프로젝트 Knowledge에 이 파일을 교체하면 KAI가 최신 내용을 참조합니다.
-                </p>
-            </div>
-            
-            <p style="color:#8b949e;margin-top:20px;font-size:12px;">
-                NEXUS Docs Monitor v2 | Powered by KAI
+    html = f"""<html>
+<body style="background:#0d1117;color:#e0e0e0;font-family:sans-serif;padding:20px;">
+    <div style="max-width:600px;margin:0 auto;background:#161b22;border-radius:12px;padding:24px;">
+        <h1 style="color:#58a6ff;">Claude 문서 변경 감지</h1>
+        <p style="color:#8b949e;">{now} | {len(changes)}건 변경</p>
+        <h2 style="color:#f0883e;">변경된 문서</h2>
+        <table style="width:100%;border-collapse:collapse;">
+            <tr>
+                <th style="padding:8px;border:1px solid #333;background:#21262d;color:#f0883e;">카테고리</th>
+                <th style="padding:8px;border:1px solid #333;background:#21262d;color:#f0883e;">문서</th>
+            </tr>
+            {changes_html}
+        </table>
+        <h2 style="color:#f0883e;margin-top:20px;">변경 요약</h2>
+        <div style="background:#1a1a2e;padding:16px;border-radius:8px;white-space:pre-wrap;line-height:1.6;">{summary}</div>
+        <h2 style="color:#f0883e;margin-top:20px;">지식베이스 업데이트</h2>
+        <div style="background:#1a1a2e;padding:16px;border-radius:8px;">
+            <p>최신 knowledge-base.md가 자동 생성되었습니다.</p>
+            <p>
+                <a href="{github_kb_url}" style="color:#4fc3f7;font-size:16px;">GitHub에서 보기</a> |
+                <a href="{github_raw_url}" style="color:#4fc3f7;font-size:16px;">다운로드</a>
+            </p>
+            <p style="color:#8b949e;font-size:12px;">
+                claude.ai 프로젝트 Knowledge에 이 파일을 교체하면 KAI가 최신 내용을 참조합니다.
             </p>
         </div>
-    </body>
-    </html>
-    """
+        <p style="color:#8b949e;margin-top:20px;font-size:12px;">NEXUS Docs Monitor v2 | Powered by KAI</p>
+    </div>
+</body>
+</html>"""
 
-    html = html.replace("\xa0", " ")
-    msg.attach(MIMEText(html, "html", "utf-8"))
+    # 최종 안전장치: HTML 내 모든 non-ASCII 공백 제거
+    html = _clean_text(html)
+
+    msg = MIMEText(html, "html", "utf-8")
+    msg["Subject"] = Header(f"Claude 문서 변경 감지 ({len(changes)}건) - {now}", "utf-8")
+    msg["From"] = GMAIL_ADDRESS
+    msg["To"] = GMAIL_ADDRESS
 
     try:
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
