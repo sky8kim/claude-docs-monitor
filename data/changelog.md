@@ -1,6 +1,59 @@
 
 ---
 
+### 🔄 2026-03-10 02:32 UTC
+
+- **[Claude Code]** Claude Code Overview ([링크](https://docs.anthropic.com/en/docs/claude-code/overview))
+- **[Claude Code]** Claude Code Quickstart ([링크](https://code.claude.com/docs/ko/quickstart))
+- **[Claude Code]** Claude Code CLI Reference ([링크](https://docs.anthropic.com/en/docs/claude-code/cli-reference))
+- **[Claude Code]** Claude Code MCP ([링크](https://docs.anthropic.com/en/docs/claude-code/mcp))
+- **[Claude Code]** Claude Code Settings ([링크](https://docs.anthropic.com/en/docs/claude-code/settings))
+- **[API]** Claude API Changelog ([링크](https://docs.anthropic.com/en/docs/about-claude/models))
+- **[API]** Claude API Tool Use ([링크](https://docs.anthropic.com/en/docs/build-with-claude/tool-use/overview))
+- **[API]** Claude API MCP Connector ([링크](https://docs.anthropic.com/en/docs/build-with-claude/mcp-connector))
+- **[News]** Anthropic News ([링크](https://www.anthropic.com/news))
+- **[Release]** Claude Code GitHub Releases ([링크](https://github.com/anthropics/claude-code/releases))
+
+**요약:** 📌 [Claude Code] Claude Code Overview
+   URL: https://docs.anthropic.com/en/docs/claude-code/overview
+   변경량: +4줄 / -4줄
+   키워드: new
+
+📌 [Claude Code] Claude Code Quickstart
+   URL: https://code.claude.com/docs/ko/quickstart
+   변경량: +3줄 / -3줄
+   키워드: new
+
+📌 [Claude Code] Claude Code CLI Reference
+   URL: https://docs.anthropic.com/en/docs/claude-code/cli-reference
+   변경량: +4줄 / -4줄
+   키워드: new
+
+📌 [Claude Code] Claude Code MCP
+   URL: https://docs.anthropic.com/en/docs/claude-code/mcp
+   변경량: +4줄 / -4줄
+   키워드: new
+
+📌 [Claude Code] Claude Code Settings
+   URL: https://docs.anthropic.com/en/docs/claude-code/settings
+   변경량: +8줄 / -8줄
+   키워드: new
+
+📌 [API] Claude API Changelog
+   URL: https://docs.anthropic.com/en/docs/about-claude/models
+   변경량: +2줄 / -2줄
+   키워드: new, updated
+
+📌 [API] Claude API Tool Use
+   URL: https://docs.anthropic.com/en/docs/build-with-claude/tool-use/overview
+   변경량: +136줄 / -25줄
+   키워드: new, updated, deprecated, added, changed
+
+📌 [API] Claude API MCP Connector
+   URL: 
+
+---
+
 ### 🔄 2026-03-09 02:42 UTC
 
 - **[Claude Code]** Claude Code Overview ([링크](https://docs.anthropic.com/en/docs/claude-code/overview))
