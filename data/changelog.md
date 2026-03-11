@@ -1,6 +1,56 @@
 
 ---
 
+### 🔄 2026-03-11 02:32 UTC
+
+- **[Claude Code]** Claude Code Overview ([링크](https://docs.anthropic.com/en/docs/claude-code/overview))
+- **[Claude Code]** Claude Code Quickstart ([링크](https://code.claude.com/docs/ko/quickstart))
+- **[Claude Code]** Claude Code CLI Reference ([링크](https://docs.anthropic.com/en/docs/claude-code/cli-reference))
+- **[Claude Code]** Claude Code MCP ([링크](https://docs.anthropic.com/en/docs/claude-code/mcp))
+- **[Claude Code]** Claude Code Settings ([링크](https://docs.anthropic.com/en/docs/claude-code/settings))
+- **[API]** Claude API Changelog ([링크](https://docs.anthropic.com/en/docs/about-claude/models))
+- **[API]** Claude API Tool Use ([링크](https://docs.anthropic.com/en/docs/build-with-claude/tool-use/overview))
+- **[API]** Claude API MCP Connector ([링크](https://docs.anthropic.com/en/docs/build-with-claude/mcp-connector))
+- **[News]** Anthropic News ([링크](https://www.anthropic.com/news))
+- **[Release]** Claude Code GitHub Releases ([링크](https://github.com/anthropics/claude-code/releases))
+
+**요약:** 📌 [Claude Code] Claude Code Overview
+   URL: https://docs.anthropic.com/en/docs/claude-code/overview
+   변경량: +12줄 / -12줄
+
+📌 [Claude Code] Claude Code Quickstart
+   URL: https://code.claude.com/docs/ko/quickstart
+   변경량: +40줄 / -40줄
+
+📌 [Claude Code] Claude Code CLI Reference
+   URL: https://docs.anthropic.com/en/docs/claude-code/cli-reference
+   변경량: +9줄 / -9줄
+
+📌 [Claude Code] Claude Code MCP
+   URL: https://docs.anthropic.com/en/docs/claude-code/mcp
+   변경량: +33줄 / -32줄
+   키워드: new
+
+📌 [Claude Code] Claude Code Settings
+   URL: https://docs.anthropic.com/en/docs/claude-code/settings
+   변경량: +27줄 / -26줄
+
+📌 [API] Claude API Changelog
+   URL: https://docs.anthropic.com/en/docs/about-claude/models
+   변경량: +6줄 / -6줄
+   키워드: new, updated
+
+📌 [API] Claude API Tool Use
+   URL: https://docs.anthropic.com/en/docs/build-with-claude/tool-use/overview
+   변경량: +20줄 / -136줄
+   키워드: new, updated
+
+📌 [API] Claude API MCP Connector
+   URL: https://docs.anthropic.com/en/docs/build-with-claude/mcp-connector
+ 
+
+---
+
 ### 🔄 2026-03-10 02:32 UTC
 
 - **[Claude Code]** Claude Code Overview ([링크](https://docs.anthropic.com/en/docs/claude-code/overview))
