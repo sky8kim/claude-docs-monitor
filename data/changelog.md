@@ -1,6 +1,54 @@
 
 ---
 
+### 🔄 2026-03-16 02:55 UTC
+
+- **[Claude Code]** Claude Code CLI Reference ([링크](https://docs.anthropic.com/en/docs/claude-code/cli-reference))
+- **[Claude Code]** Claude Code MCP ([링크](https://docs.anthropic.com/en/docs/claude-code/mcp))
+- **[Claude Code]** Claude Code Settings ([링크](https://docs.anthropic.com/en/docs/claude-code/settings))
+- **[API]** Claude API Changelog ([링크](https://docs.anthropic.com/en/docs/about-claude/models))
+- **[API]** Claude API Tool Use ([링크](https://docs.anthropic.com/en/docs/build-with-claude/tool-use/overview))
+- **[API]** Claude API MCP Connector ([링크](https://docs.anthropic.com/en/docs/build-with-claude/mcp-connector))
+- **[News]** Anthropic News ([링크](https://www.anthropic.com/news))
+- **[Release]** Claude Code GitHub Releases ([링크](https://github.com/anthropics/claude-code/releases))
+
+**요약:** 📌 [Claude Code] Claude Code CLI Reference
+   URL: https://docs.anthropic.com/en/docs/claude-code/cli-reference
+   변경량: +1줄 / -1줄
+
+📌 [Claude Code] Claude Code MCP
+   URL: https://docs.anthropic.com/en/docs/claude-code/mcp
+   변경량: +1줄 / -1줄
+
+📌 [Claude Code] Claude Code Settings
+   URL: https://docs.anthropic.com/en/docs/claude-code/settings
+   변경량: +3줄 / -3줄
+
+📌 [API] Claude API Changelog
+   URL: https://docs.anthropic.com/en/docs/about-claude/models
+   변경량: +2줄 / -2줄
+   키워드: new, updated
+
+📌 [API] Claude API Tool Use
+   URL: https://docs.anthropic.com/en/docs/build-with-claude/tool-use/overview
+   변경량: +2줄 / -2줄
+   키워드: new, updated
+
+📌 [API] Claude API MCP Connector
+   URL: https://docs.anthropic.com/en/docs/build-with-claude/mcp-connector
+   변경량: +2줄 / -2줄
+   키워드: new, added, updated, changed
+
+📌 [News] Anthropic News
+   URL: https://www.anthropic.com/news
+   변경량: +2줄 / -2줄
+   키워드: new, updated, breaking
+
+📌 [Release] Claude Code GitHub Releases
+   URL: https://github.com/anthropics/claude
+
+---
+
 ### 🔄 2026-03-15 02:54 UTC
 
 - **[Claude Code]** Claude Code Overview ([링크](https://docs.anthropic.com/en/docs/claude-code/overview))
